@@ -27,8 +27,7 @@ client.on('message', async (msg) => {
     msg.reply(`Available Commands:
 .help - Show this message
 .say [text] - Echo back your message
-.vo - Save view-once image or video
-.image [prompt] - Generate an AI image
+.vo - Save view-once image or video 
 .block - Block this user`);
   }
 
@@ -46,35 +45,6 @@ client.on('message', async (msg) => {
       msg.reply('Please send a view-once image or video immediately after this command.');
     }
   }
-
-  if (text.startsWith('.image ')) {
-    const prompt = msg.body.slice(7);
-    try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/images/generations',
-        {
-          prompt,
-          n: 1,
-          size: '512x512',
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const imageUrl = response.data.data[0].url;
-      const imageResp = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-      const media = new MessageMedia('image/jpeg', Buffer.from(imageResp.data, 'binary').toString('base64'));
-      await client.sendMessage(msg.from, media, { caption: `Generated for: ${prompt}` });
-    } catch (error) {
-      console.error('Image generation error:', error.response?.data || error.message);
-      msg.reply('Failed to generate image.');
-    }
-  }
-
   if (text === '.block') {
     try {
       await client.blockContact(msg.from);
